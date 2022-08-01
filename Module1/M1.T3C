@@ -1,0 +1,62 @@
+// C++ code
+//
+const int MOTION_PIN1 = 2;
+const int MOTION_PIN2 = 3;
+const int LED_PIN1 = 13;
+const int LED_PIN2 = 5;
+
+void setup()
+{
+  pinMode(MOTION_PIN1, INPUT);
+  pinMode(MOTION_PIN2, INPUT);
+  pinMode(LED_PIN1, OUTPUT);
+  pinMode(5, OUTPUT);
+  Serial.begin(9600);
+  
+  attachInterrupt(digitalPinToInterrupt(MOTION_PIN1), pin_ISR1, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(MOTION_PIN2), pin_ISR2, CHANGE);
+}
+
+void loop()
+{
+}
+
+// Interrupt function code for motion sensor 1 (MOTION_PIN1)
+// and LED 1 (LED_PIN1)
+void pin_ISR1() 
+{
+  // Read in the new motion state
+  int motionState = digitalRead(MOTION_PIN1);
+  Serial.print("Motion state change in pin " + String(MOTION_PIN1) + ": ");
+  Serial.print(motionState);
+  Serial.println("");
+  
+  // Update the ledState to the motion's state
+  int ledState = motionState;
+  Serial.print("Updating LED state on pin " + String(LED_PIN1) + ": ");
+  Serial.print(ledState);
+  Serial.println("");
+  
+  // Update the board's LED with the new ledState
+  digitalWrite(LED_PIN1, ledState);
+}
+
+// Interrupt function code for motion sensor 2 (MOTION_PIN2)
+// and LED 2 (LED_PIN2)
+void pin_ISR2() 
+{
+  // Read in the new motion state
+  int motionState = digitalRead(MOTION_PIN2);
+  Serial.print("Motion state change in pin " + String(MOTION_PIN2) + ": ");
+  Serial.print(motionState);
+  Serial.println("");
+  
+  // Update the ledState to the motion's state
+  int ledState = motionState;
+  Serial.print("Updating LED state on pin " + String(LED_PIN2) + ": ");
+  Serial.print(ledState);
+  Serial.println("");
+  
+  // Update the board's LED with the new ledState
+  digitalWrite(LED_PIN2, ledState);
+}
