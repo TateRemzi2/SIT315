@@ -1,0 +1,126 @@
+// C++ code
+//
+
+const int MOTION_PIN1 = 2;
+const int MOTION_PIN2 = 3;
+const int LED_PIN1 = 13;
+const int LED_PIN2 = 5;
+const int LED_PIN3 = 11;
+const int BTN_PIN = 6;
+int toggle2 = 0;
+
+void setup()
+{
+  pinMode(MOTION_PIN1, INPUT);
+  pinMode(MOTION_PIN2, INPUT);
+  pinMode(LED_PIN1, OUTPUT);
+  pinMode(LED_PIN2, OUTPUT);
+  
+  pinMode(BTN_PIN, INPUT_PULLUP);
+  
+  Serial.begin(9600);
+  
+  attachInterrupt(digitalPinToInterrupt(MOTION_PIN1), pin_ISR1, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(MOTION_PIN2), pin_ISR2, CHANGE);
+  
+  
+  PCICR = 0b00000100; // enable pin change interrupt 2
+  PCMSK2 = 0b01100000; // enable pin change interrupt pin 22
+  sei(); // enable interrupts globally
+  
+  
+  // TIMER INTERRUPT
+  pinMode(LED_PIN3, OUTPUT);
+  
+  noInterrupts();
+  
+  // Clear registers
+  TCCR2A = 0;
+  TCCR2B = 0;
+  TCNT2 = 0;
+  
+  // Set timer compare
+  OCR2A = 249;
+  
+  TCCR2B |= (1 << CS22);
+  
+  TIMSK2 |= (1 << OCIE2A);
+  
+  TCCR2A |= (1 << WGM21);
+  
+  
+  interrupts();
+}
+
+void loop()
+{
+}
+
+// Interrupt function code for motion sensor 1 (MOTION_PIN1)
+// and LED 1 (LED_PIN1)
+void pin_ISR1() 
+{
+  // Read in the new motion state
+  int motionState = digitalRead(MOTION_PIN1);
+  Serial.print("Motion state change in pin " + String(MOTION_PIN1) + ": ");
+  Serial.print(motionState);
+  Serial.println("");
+  
+  // Update the ledState to the motion's state
+  int ledState = motionState;
+  Serial.print("Updating LED state on pin " + String(LED_PIN1) + ": ");
+  Serial.print(ledState);
+  Serial.println("");
+  
+  // Update the board's LED with the new ledState
+  digitalWrite(LED_PIN1, ledState);
+}
+
+// Interrupt function code for motion sensor 2 (MOTION_PIN2)
+// and LED 2 (LED_PIN2)
+void pin_ISR2() 
+{
+  // Read in the new motion state
+  int motionState = digitalRead(MOTION_PIN2);
+  Serial.print("Motion state change in pin " + String(MOTION_PIN2) + ": ");
+  Serial.print(motionState);
+  Serial.println("");
+  
+  // Update the ledState to the motion's state
+  int ledState = motionState;
+  Serial.print("Updating LED state on pin " + String(LED_PIN2) + ": ");
+  Serial.print(ledState);
+  Serial.println("");
+  
+  // Update the board's LED with the new ledState
+  digitalWrite(LED_PIN2, ledState);
+}
+
+ISR(PCINT2_vect) 
+{
+  // Read in the button's state as the button pin's state
+  int buttonState = digitalRead(BTN_PIN);
+  // Update the LED pin with the button's new state
+  digitalWrite(LED_PIN1, buttonState);
+  
+  Serial.println("Button pressed: lighting up LED 13");
+}
+
+// Turn the blue LED on/off every 4 seconds
+// Print a message to the serial when turning on and off
+ISR(TIMER2_COMPA_vect) 
+{
+    if (toggle2 == 4000){
+    digitalWrite(LED_PIN3,HIGH);
+    toggle2 = toggle2 + 1;
+    Serial.println("Timer: LED ON");
+  }
+  else if (toggle2 == 8000) {
+    digitalWrite(LED_PIN3,LOW);
+    toggle2 = 0;
+    Serial.println("Timer: LED OFF");
+  }
+  else{
+    toggle2 = toggle2 + 1;
+	}
+}
